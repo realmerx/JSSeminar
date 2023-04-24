@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+  <style>
+    div {
+      border: 1px solid black;
+      margin: 6px;
+      padding: 4px;
+    }
+
+    .movie {
+      display: flex;
+    }
+
+    .movie div[prop="title"] {
+      width: 400px;
+    }
+
+    .movie div[prop="genre"] {
+      width: 100px;
+    }
+  </style>
+
+</head>
+<body>
+  <div id="app">
+    <div id="movies-list">
+      <div class="movie" bind-object="movie" repeat="movies">
+        <div bind="id"></div>
+        <div bind="title"></div>
+        <div bind="genre"></div>
+        <button click="showMovie">view</button>
+      </div>
+    </div>
+
+    <div id="movie-details" bind-object="movie">
+      <div bind="title"></div>
+      <div bind="plot"></div>
+    </div>
+  </div>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
