@@ -1,0 +1,14 @@
+div {
+     border: 1px solid black;
+     margin: 6px;
+     padding: 4px;
+}
+ .movie {
+     display: flex;
+}
+ .movie div[prop="title"] {
+     width: 400px;
+}
+ .movie div[prop="genre"] {
+     width: 100px;
+}
