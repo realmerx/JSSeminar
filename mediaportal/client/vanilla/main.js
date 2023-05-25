@@ -1,96 +1,79 @@
 ﻿const apiPrefix = "http://localhost:3000";
-const appEl = document.getElementById("app");
+const rootAppEl = document.getElementById("app");
 
-const app = {};
-app.showMovie = async (item) => {
-  await bindMovie(item.id);
+const rootApp = {};
+rootApp.appEl = rootAppEl;
+rootApp.showMovie = async (item) => {
+  await bindMovie(rootApp, item.id);
 };
 
-//domBindApp();
-declarativeApp();
+declarativeApp(rootApp);
 
-async function domBindApp() {
-  await bindMoviesData();
+async function declarativeApp(app) {
+  await bindMoviesData(app);
+  //await bindMovie(app, 1);
+  console.log('app', app)
 
-  const moviesListNode = document.querySelector("#movies-list");
-  const movieItemTemplateNode = moviesListNode.querySelector(".movie");
-  for (const item of app.movies) {
-    const movieItemNode = movieItemTemplateNode.cloneNode(true);
-
-    movieItemNode.querySelectorAll("[prop]").forEach((node) => {
-      const propName = node.getAttribute("prop");
-      node.innerHTML = item[propName];
-    });
-
-    movieItemNode.addEventListener("click", () => {
-      app.showMovie(item.id);
-    });
-    moviesListNode.appendChild(movieItemNode);
-  }
-  movieItemTemplateNode.remove();
+  bindAppLogic(app, app.appEl);
+  registerCustomElements();
 }
 
-async function declarativeApp() {
-  await bindMoviesData();
-  bindAppLogic(appEl, app);
-}
-
-async function bindMoviesData() {
+async function bindMoviesData(app) {
   const response = await fetch(`${apiPrefix}/movies`);
   const data = await response.json();
   app.movies = data;
 }
 
-async function bindMovie(id) {
+async function bindMovie(app, id) {
   const response = await fetch(`${apiPrefix}/movies/${id}`);
   const data = await response.json();
   app.movie = data;
 }
 
-function bindAppLogic(domNode, item) {
-  bindObjects(domNode, item);
-  bindRepeaters();
+function bindAppLogic(app, domNode) {
+  bindObjects(app, domNode, app);
+  bindRepeaters(app);
 }
 
-function bindRepeaters() {
-  const repeaters = document.querySelectorAll("[repeat]");
+function bindRepeaters(app) {
+  const repeaters = app.appEl.querySelectorAll("[repeat]");
   for (const repeater of repeaters) {
     const dataName = repeater.getAttribute("repeat");
     const itemsToBind = app[dataName];
     const repeaterItemTemplate = repeater;
-
+    
+    const repeaterItems = []
     for (const item of itemsToBind) {
       const repeaterItem = repeaterItemTemplate.cloneNode(true);
-      bindObjectLogic(repeaterItem, item);
-
-      repeater.parentNode.appendChild(repeaterItem);
+      repeaterItem.removeAttribute('repeat')
+      bindObjectLogic(app, repeaterItem, item);
+      repeaterItems.push(repeaterItem)
     }
-    repeaterItemTemplate.remove();
+    repeater.parentNode.replaceChildren(...repeaterItems)
   }
 }
 
-function bindObjects(domNode, item, insideRepeater = false) {
+function bindObjects(app, domNode, item, insideRepeater = false) {
   const objBindItems = domNode.querySelectorAll("[bind-object]");
   for (const objBindItem of objBindItems) {
-    if (!insideRepeater && objBindItem.hasAttribute("repeat"))
-      continue;
+    if (!insideRepeater && objBindItem.hasAttribute("repeat")) continue;
 
     let itemToBind = null;
     const objName = objBindItem.getAttribute("bind-object");
     itemToBind = item[objName];
 
     if (itemToBind) {
-      bindObjectLogic(objBindItem, itemToBind);
+      bindObjectLogic(app, objBindItem, itemToBind);
     }
   }
 }
 
-function bindObjectLogic(objNode, item) {
-  bindBinds(objNode, item);
-  bindEvents(objNode, item);
+function bindObjectLogic(app, objNode, item) {
+  bindBinds(app, objNode, item);
+  bindEvents(app, objNode, item);
 }
 
-function bindBinds(domNode, item) {
+function bindBinds(app, domNode, item) {
   const bindItems = domNode.querySelectorAll("[bind]");
   for (const bindItem of bindItems) {
     const bindName = bindItem.getAttribute("bind");
@@ -98,13 +81,81 @@ function bindBinds(domNode, item) {
   }
 }
 
-function bindEvents(domNode, item) {
+function bindEvents(app, domNode, item) {
   const eventItems = domNode.querySelectorAll("[click]");
   for (const eventItem of eventItems) {
     eventItem.addEventListener("click", async () => {
       const eventCallback = eventItem.getAttribute("click");
       await app[eventCallback](item);
-      bindObjects(appEl, app)
+      
     });
   }
 }
+
+function registerCustomElements() {
+  for(const [name, component] of Object.entries(customElementsMap)) {
+    customElements.define(name, component)
+  }
+}
+
+function updateComponents() {
+  Object.entries(customElementsMap).forEach(([selector, _]) => {
+    document.querySelectorAll(selector).forEach(comp => {
+      comp.bindSubAppFromProps(comp.subApp)
+    })
+  })
+}
+
+
+class BindableComponent extends HTMLElement {
+  
+  bindSubAppFromProps(subApp) {
+    subApp.appEl = this;
+    for(const attributeName of this.getAttributeNames()) {
+      if(attributeName.startsWith('bind-')) {
+        const propToBind = attributeName.replace('bind-', '')
+        subApp[propToBind] = rootApp[propToBind]
+      }
+    }
+    console.log('subApp', subApp);
+
+    bindAppLogic(subApp, subApp.appEl);
+    return subApp;    
+  }
+}
+class MoviesListComponent extends BindableComponent {
+  constructor() {
+    super();
+
+    const template = document.getElementById("movies-list-template");
+    this.appendChild(template.content.cloneNode(true));
+    
+    
+    this.subApp = this.bindSubAppFromProps({
+      triggerItemSelected: async (item) => {
+        this.dispatchEvent(new CustomEvent('item-selected', { detail: item }));
+      }
+    });
+    this.addEventListener('item-selected', async (e) => {
+      await rootApp[this.getAttribute('on-item-selected')](e.detail);
+      updateComponents();
+    });
+  }
+}
+class MovieDetailsComponent extends BindableComponent {
+  constructor() {
+    super();
+
+    const template = document.getElementById("movie-details-template");
+
+    this.appendChild(template.content.cloneNode(true));
+    this.subApp = this.bindSubAppFromProps({});
+  }
+}
+
+const customElementsMap = {
+  "movies-list": MoviesListComponent,
+  "movie-details": MovieDetailsComponent
+}
+
+

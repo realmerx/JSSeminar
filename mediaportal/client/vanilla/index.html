@@ -16,33 +16,43 @@
       display: flex;
     }
 
-    .movie div[prop="title"] {
+    .movie div[bind="title"] {
       width: 400px;
     }
 
-    .movie div[prop="genre"] {
+    .movie div[bind="genre"] {
       width: 100px;
     }
   </style>
 
 </head>
 <body>
+  
   <div id="app">
+    <movies-list bind-movies="movies" on-item-selected="showMovie"></movies-list>
+    <movie-details bind-movie="movie"></movie-details>
+  </div>
+
+  <template id="movies-list-template">
     <div id="movies-list">
       <div class="movie" bind-object="movie" repeat="movies">
         <div bind="id"></div>
         <div bind="title"></div>
         <div bind="genre"></div>
-        <button click="showMovie">view</button>
+        <button click="triggerItemSelected">view</button>
       </div>
     </div>
+  </template>
 
+  <template id="movie-details-template">
     <div id="movie-details" bind-object="movie">
+      <h2>Movie details</h2>
       <div bind="title"></div>
       <div bind="plot"></div>
     </div>
-  </div>
+  </template>
 
-  <script type="module" src="main.js"></script>
-</body>
+   <script type="module" src="main.js"></script>
+
+  </body>
 </html>
