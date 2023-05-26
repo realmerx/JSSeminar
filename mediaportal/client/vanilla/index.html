@@ -5,25 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
 
-  <style>
-    div {
-      border: 1px solid black;
-      margin: 6px;
-      padding: 4px;
-    }
-
-    .movie {
-      display: flex;
-    }
-
-    .movie div[bind="title"] {
-      width: 400px;
-    }
-
-    .movie div[bind="genre"] {
-      width: 100px;
-    }
-  </style>
+  <link rel="stylesheet" href="app.css">
 
 </head>
 <body>
@@ -33,6 +15,7 @@
     <movie-details bind-movie="movie"></movie-details>
   </div>
 
+  <!--
   <template id="movies-list-template">
     <div id="movies-list">
       <div class="movie" bind-object="movie" repeat="movies">
@@ -43,7 +26,8 @@
       </div>
     </div>
   </template>
-
+  -->
+  <!--
   <template id="movie-details-template">
     <div id="movie-details" bind-object="movie">
       <h2>Movie details</h2>
@@ -51,8 +35,8 @@
       <div bind="plot"></div>
     </div>
   </template>
-
-   <script type="module" src="main.js"></script>
+  -->
+   <script type="module" src="app.js"></script>
 
   </body>
 </html>
