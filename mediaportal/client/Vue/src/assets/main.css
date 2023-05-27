@@ -1,17 +1,40 @@
-@import './base.css';
-
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
   font-weight: normal;
 }
 
-a,
-.green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
+#app {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-size: 16px;
 }
 
+div {
+  margin: 5px;
+  padding: 4px;
+}
+
+.movie {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 20px 1fr 120px 60px;
+  padding-bottom: 8px;
+}
+
+.movie:not(:last-child) {
+  border-bottom: 1px solid rgb(224, 223, 223);
+}
+
+#movie-details {
+  padding: 8px;
+}
+
+.movie-plot {
+  margin: 10px;
+  line-height: 1.6;
+
+}

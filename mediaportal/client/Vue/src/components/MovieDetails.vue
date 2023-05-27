@@ -1,8 +1,7 @@
 <template>
     <div id="movie-details">
-        <h2>Movie details</h2>
-        <div>{{movie.title}}</div>
-        <div>{{movie.plot}}</div>
+        <h2>{{movie.title}}</h2>
+        <p class="movie-plot">{{movie.plot}}</p>
     </div>
 </template>
 
