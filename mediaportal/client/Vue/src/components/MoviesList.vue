@@ -1,10 +1,10 @@
 <template>
     <div id="movies-list">
-        <div class="movie" v-for="movie in movies">
+        <div class="movie" v-for="movie in movies" data-cy="movie">
             <div>{{movie.id}}</div>
-            <div>{{movie.title}}</div>
+            <div class="movie-title">{{movie.title}}</div>
             <div>{{movie.genre}}</div>
-            <button v-on:click="selectMovie(movie.id)">View</button>
+            <button v-on:click="selectMovie(movie.id)" data-cy="movie-show-details">View</button>
         </div>
     </div>
 </template>
@@ -17,8 +17,8 @@
             movies: Array as PropType<Movie[]>
         },
         methods: {
-            selectMovie(sid: number) {
-                this.$emit('select-movie', sid)
+            selectMovie(id: number) {
+                this.$emit('select-movie', id)
             }
         }
     }
